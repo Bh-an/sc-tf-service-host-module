@@ -1,0 +1,69 @@
+variable "region" {
+  description = "AWS region."
+  type        = string
+  default     = "ap-south-1"
+}
+
+variable "platform" {
+  description = "Platform name for tagging and naming."
+  type        = string
+  default     = "platform"
+}
+
+variable "environment" {
+  description = "Environment name for tagging and naming."
+  type        = string
+  default     = "assignment"
+}
+
+variable "vpc_cidr" {
+  description = "VPC CIDR block."
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
+variable "public_subnet_cidrs" {
+  description = "Public subnet CIDRs."
+  type        = list(string)
+  default     = ["10.0.1.0/24"]
+}
+
+variable "availability_zones" {
+  description = "Availability zones used for the subnets."
+  type        = list(string)
+  default     = ["ap-south-1a"]
+}
+
+variable "instance_type" {
+  description = "EC2 instance type."
+  type        = string
+  default     = "t3.micro"
+}
+
+variable "key_pair_name" {
+  description = "Optional key pair name for emergency SSH access."
+  type        = string
+  default     = null
+}
+
+variable "docker_image" {
+  description = "Docker image to deploy on the instance."
+  type        = string
+  default     = "bhan/ec2-go-service:latest"
+}
+
+variable "ingress_rules" {
+  description = "Security group ingress rules for the application instance."
+  type = list(object({
+    port        = number
+    cidr        = string
+    description = string
+  }))
+  default = [
+    {
+      port        = 80
+      cidr        = "0.0.0.0/0"
+      description = "HTTP"
+    }
+  ]
+}
