@@ -1,6 +1,6 @@
-# sc-terraform-ec2-service-module
+# sc-tf-ec2-service-module
 
-`sc-terraform-ec2-service-module` is the Terraform-side infrastructure repo for the assignment-aligned EC2 service model.
+`sc-tf-ec2-service-module` is the Terraform-side infrastructure repo for the assignment-aligned EC2 service model.
 
 It owns:
 
@@ -8,7 +8,7 @@ It owns:
 - reusable Terraform modules under `terraform/modules/`
 - a runnable Terraform root stack under `terraform/`
 
-It does not own the application source. The Go application lives in the sibling service repo `ec2-go-service` (Bh‑an namespace), which also owns Docker image publishing to GHCR.
+It does not own the application source. The Go application lives in the sibling service repo `sc-ec2-go-service` (Bh‑an namespace), which also owns Docker image publishing to GHCR.
 
 ## Deployability Contract (Aligned To CDK)
 
@@ -53,3 +53,7 @@ terraform validate
   - service-team repo with the Go app plus both CDK (primary) and Terraform (secondary) consumer paths
 
 Current release line: `v0.1.1`
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for branch usage, Conventional Commit rules, and required validation commands.
