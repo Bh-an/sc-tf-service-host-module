@@ -1,21 +1,5 @@
-README.md
-
-# Claude / AI tooling
-.claude/
-CLAUDE.md
-
-# Codex / AI tooling
-AGENTS.md
-
-# Kiro / AI tooling
-.kiro/
-
-# AI-facing internal docs
-PLAN.md
-STATE.md
-CODING.md
+# Misc assignment files
 assignment.pdf
-DESIGN.md
 
 # Terraform
 terraform/.terraform/
@@ -31,9 +15,6 @@ terraform/*_override.tf
 # Packer
 packer/manifest.json
 packer/*.pkrvars.hcl
-
-# Go build artifacts
-app/server
 
 # Misc
 *.log

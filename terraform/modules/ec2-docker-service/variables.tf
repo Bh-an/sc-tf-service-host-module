@@ -1,37 +1,26 @@
-variable "region" {
-  description = "AWS region."
-  type        = string
-  default     = "ap-south-1"
-}
-
 variable "platform" {
   description = "Platform name for tagging and naming."
   type        = string
-  default     = "platform"
 }
 
 variable "environment" {
   description = "Environment name for tagging and naming."
   type        = string
-  default     = "assignment"
 }
 
-variable "vpc_cidr" {
-  description = "VPC CIDR block."
+variable "vpc_id" {
+  description = "VPC ID where the service will be deployed."
   type        = string
-  default     = "10.0.0.0/16"
 }
 
-variable "public_subnet_cidrs" {
-  description = "Public subnet CIDRs."
-  type        = list(string)
-  default     = ["10.0.1.0/24"]
+variable "subnet_id" {
+  description = "Subnet ID where the EC2 instance will be deployed."
+  type        = string
 }
 
-variable "availability_zones" {
-  description = "Availability zones used for the subnets."
-  type        = list(string)
-  default     = ["ap-south-1a"]
+variable "availability_zone" {
+  description = "Availability zone for the data volume."
+  type        = string
 }
 
 variable "instance_type" {
@@ -49,11 +38,10 @@ variable "key_pair_name" {
 variable "docker_image" {
   description = "Docker image to deploy on the instance."
   type        = string
-  default     = "bhan/ec2-go-service:latest"
 }
 
 variable "ami_name_prefix" {
-  description = "AMI name prefix used to discover the baked Docker host image."
+  description = "AMI name prefix used to discover the baked host image."
   type        = string
   default     = "ec2-docker-host"
 }
