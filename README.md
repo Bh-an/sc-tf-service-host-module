@@ -1,6 +1,6 @@
-# ec2-assignment
+# sc-terraform-ec2-service-module
 
-`ec2-assignment` is now the Terraform-side infrastructure repo for the assignment-aligned EC2 service model.
+`sc-terraform-ec2-service-module` is the Terraform-side infrastructure repo for the assignment-aligned EC2 service model.
 
 It owns:
 
@@ -43,3 +43,5 @@ terraform validate
   - service-team repo with the Go app plus both Terraform and CDK consumer paths
 - `../cdk-ec2-service-module`
   - shared CDK module repo with Go bindings for the same service model
+
+Current release line: `v0.1.0`
