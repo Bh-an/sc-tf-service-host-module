@@ -1,6 +1,6 @@
-# sc-terraform-ec2-service-module
+# sc-tf-ec2-service-module
 
-`sc-terraform-ec2-service-module` is the Terraform-side infrastructure repo for the assignment-aligned EC2 service model.
+`sc-tf-ec2-service-module` is the Terraform-side infrastructure repo for the assignment-aligned EC2 service model.
 
 It owns:
 
