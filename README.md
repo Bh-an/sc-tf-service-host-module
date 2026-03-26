@@ -52,7 +52,7 @@ terraform validate
 - `https://github.com/Bh-an/sc-ec2-go-service`
   - service-team repo with the Go app plus both CDK (primary) and Terraform (secondary) consumer paths
 
-Current release line: `v0.3.0-dev`
+Current release line: `v0.3.0`
 
 ## Contributing
 
