@@ -17,6 +17,8 @@ For real service bring-up on a fresh machine, start in `https://github.com/Bh-an
 - `make publish-image`
 - `make deploy-cdk`
 - `make deploy-terraform`
+- `make cleanup-cdk`
+- `make cleanup-terraform`
 - `TESTING.md` for the real AWS-account checklist
 
 ## Deployability Contract (Aligned To CDK)
@@ -80,6 +82,8 @@ terraform validate
   - service-team repo with the Go app plus both CDK (primary) and Terraform (secondary) consumer paths
 
 Current release line: `v0.3.0`
+
+Current `dev` branch is preparing the next non-breaking Terraform release: `v0.3.2`.
 
 ## Contributing
 
