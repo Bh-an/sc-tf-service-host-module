@@ -17,6 +17,7 @@ For real service bring-up on a fresh machine, start in `https://github.com/Bh-an
 - `make publish-image`
 - `make deploy-cdk`
 - `make deploy-terraform`
+- `TESTING.md` for the real AWS-account checklist
 
 ## Deployability Contract (Aligned To CDK)
 
