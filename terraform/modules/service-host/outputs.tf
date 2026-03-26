@@ -27,3 +27,8 @@ output "iam_instance_profile_name" {
   description = "Instance profile attached to the service host"
   value       = aws_iam_instance_profile.app.name
 }
+
+output "ami_id" {
+  description = "AMI ID used for the service host instance"
+  value       = local.resolved_ami_id
+}
