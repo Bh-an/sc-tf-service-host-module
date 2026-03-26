@@ -1,6 +1,6 @@
-# sc-tf-ec2-service-module
+# sc-tf-service-host-module
 
-`sc-tf-ec2-service-module` is the Terraform-side infrastructure repo for the assignment-aligned EC2 service model.
+`sc-tf-service-host-module` is the Terraform-side infrastructure repo for the assignment-aligned EC2 service model.
 
 It owns:
 
@@ -12,7 +12,7 @@ It does not own the application source. The Go application lives in the sibling 
 
 ## Deployability Contract (Aligned To CDK)
 
-- CDK is the primary deployment path for this service model (`https://github.com/Bh-an/sc-cdk-ec2-service-module`).
+- CDK is the primary deployment path for this service model (`https://github.com/Bh-an/sc-cdk-service-host-module`).
 - This Terraform repo maintains an aligned secondary path with the same inputs/outputs and posture.
 - The service repo publishes its Docker image to GHCR: `ghcr.io/bh-an/ec2-go-service:<tag>`.
 - Terraform consumers should pass that GHCR image reference into the root stack variables.
@@ -30,7 +30,7 @@ terraform/modules/      Reusable Terraform modules
 
 - `terraform/modules/network`
   - shared VPC and subnet module
-- `terraform/modules/ec2-docker-service`
+- `terraform/modules/service-host`
   - EC2 host, EIP, IAM, KMS, EBS, Nginx, and Dockerized app bootstrap
 
 ## Local Validation
@@ -47,12 +47,12 @@ terraform validate
 
 ## Relationship To Other Repos
 
-- `https://github.com/Bh-an/sc-cdk-ec2-service-module`
+- `https://github.com/Bh-an/sc-cdk-service-host-module`
   - shared CDK module repo; primary deployment interface (Go bindings available)
 - `https://github.com/Bh-an/sc-ec2-go-service`
   - service-team repo with the Go app plus both CDK (primary) and Terraform (secondary) consumer paths
 
-Current release line: `v0.1.1`
+Current release line: `v0.2.0-dev`
 
 ## Contributing
 

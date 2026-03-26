@@ -1,5 +1,5 @@
 module "service" {
-  source = "./modules/ec2-docker-service"
+  source = "./modules/service-host"
 
   platform             = var.platform
   environment          = var.environment
