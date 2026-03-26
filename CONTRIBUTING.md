@@ -18,6 +18,12 @@ type(scope): short description
 - `main` is the stable branch
 - `dev` is the shared integration and release-prep branch
 
+## Releases
+
+- Terraform releases are cut from `main`
+- push a semver tag like `v0.3.0` on a commit already reachable from `main`
+- `.github/workflows/release.yml` validates the repo and creates the GitHub Release
+
 ## Before You Commit
 
 Run the relevant validators:
