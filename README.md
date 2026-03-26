@@ -10,6 +10,14 @@ It owns:
 
 It does not own the application source. The Go application lives in the sibling service repo `sc-ec2-go-service` (Bh‑an namespace), which also owns Docker image publishing to GHCR.
 
+For real service bring-up on a fresh machine, start in `https://github.com/Bh-an/sc-ec2-go-service` and use its operator surface:
+
+- `make bootstrap`
+- `make validate`
+- `make publish-image`
+- `make deploy-cdk`
+- `make deploy-terraform`
+
 ## Deployability Contract (Aligned To CDK)
 
 - CDK is the primary deployment path for this service model (`https://github.com/Bh-an/sc-cdk-service-host-module`).
