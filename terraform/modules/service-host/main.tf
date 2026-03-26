@@ -79,7 +79,13 @@ resource "aws_security_group" "app" {
   }
 }
 
+data "aws_ssm_parameter" "docker_host_ami" {
+  count = var.ami_ssm_parameter_name != null ? 1 : 0
+  name  = var.ami_ssm_parameter_name
+}
+
 data "aws_ami" "docker_host" {
+  count       = var.ami_ssm_parameter_name == null ? 1 : 0
   most_recent = true
   owners      = ["self"]
 
@@ -95,7 +101,7 @@ data "aws_ami" "docker_host" {
 }
 
 resource "aws_instance" "app" {
-  ami                    = data.aws_ami.docker_host.id
+  ami                    = local.resolved_ami_id
   instance_type          = var.instance_type
   subnet_id              = var.subnet_id
   vpc_security_group_ids = [aws_security_group.app.id]
