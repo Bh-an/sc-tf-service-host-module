@@ -4,6 +4,25 @@ exec > >(tee /var/log/user-data.log) 2>&1
 
 echo "Starting application deployment..."
 
+install_if_missing() {
+  local binary="$1"
+  shift
+
+  if command -v "$binary" >/dev/null 2>&1; then
+    return 0
+  fi
+
+  sudo dnf install -y "$@"
+}
+
+install_if_missing docker docker
+install_if_missing nginx nginx
+if ! command -v curl >/dev/null 2>&1; then
+  sudo dnf install -y curl-minimal || sudo dnf install -y curl
+fi
+
+sudo systemctl enable docker
+sudo systemctl enable nginx
 sudo systemctl start docker
 sudo systemctl start nginx
 
@@ -61,6 +80,7 @@ RETRY=0
 until curl -sf http://172.30.0.10:8081/health >/dev/null 2>&1; do
   RETRY=$((RETRY + 1))
   if [ "$${RETRY}" -ge "$${MAX_RETRIES}" ]; then
+    sudo docker logs ec2-go-service || true
     echo "ERROR: Application failed to become healthy on the bridge network after $${MAX_RETRIES} attempts"
     exit 1
   fi
