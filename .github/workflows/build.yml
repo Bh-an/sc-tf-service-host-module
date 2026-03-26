@@ -1,0 +1,32 @@
+name: Build
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.10.5
+
+      - name: Set up Packer
+        uses: hashicorp/setup-packer@main
+
+      - name: Validate Packer template
+        working-directory: packer
+        run: |
+          packer init .
+          packer validate .
+
+      - name: Validate Terraform root
+        working-directory: terraform
+        run: |
+          terraform init -backend=false
+          terraform validate
