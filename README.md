@@ -14,8 +14,9 @@ For real service bring-up on a fresh machine, start in `https://github.com/Bh-an
 
 - `make bootstrap`
 - `make validate`
-- `make publish-image`
+- `make resolve-image`
 - `make deploy-cdk`
+- `make build-ami`
 - `make deploy-terraform`
 - `make cleanup-cdk`
 - `make cleanup-terraform`
@@ -60,7 +61,7 @@ Recommended flow:
 2. replicate it to additional regions with `ami_regions`
 3. publish the approved regional AMI ID to SSM Parameter Store
 
-Use `packer/replication.pkrvars.hcl.example` as a starting point and `scripts/publish-ami-parameter.sh` to publish the chosen AMI ID to a service-level parameter such as `/sc/ec2-go-service/dev/ami-id`.
+For operator use, prefer `make build-ami` from `sc-ec2-go-service`. If you run Packer directly from this repo, copy `packer/replication.pkrvars.hcl.example` to a real `*.pkrvars.hcl` filename first, then run `packer build -var-file=<that-file> .`.
 
 ## Local Validation
 
@@ -81,7 +82,7 @@ terraform validate
 - `https://github.com/Bh-an/sc-ec2-go-service`
   - service-team repo with the Go app plus both CDK (primary) and Terraform (secondary) consumer paths
 
-Current release line: `v0.3.2`
+Current release line: `v0.3.3`
 
 ## Contributing
 
