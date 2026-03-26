@@ -1,0 +1,4 @@
+region                 = "ap-south-1"
+ami_name_prefix        = "ec2-docker-host"
+ami_regions            = ["ap-southeast-1"]
+ami_ssm_parameter_name = "/sc/ec2-go-service/dev/ami-id"

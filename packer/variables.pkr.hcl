@@ -21,3 +21,9 @@ variable "ami_regions" {
   type        = list(string)
   default     = []
 }
+
+variable "ami_ssm_parameter_name" {
+  description = "Optional SSM parameter name to update with the approved AMI ID after bake."
+  type        = string
+  default     = null
+}

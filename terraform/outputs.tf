@@ -17,3 +17,8 @@ output "kms_key_arn" {
   description = "ARN of the KMS key used for EBS encryption"
   value       = module.service.kms_key_arn
 }
+
+output "ami_id" {
+  description = "AMI ID used by the service root stack"
+  value       = module.service.ami_id
+}
