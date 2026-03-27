@@ -83,7 +83,7 @@ scripts/                         AMI publication helpers
 | Packer base OS | Amazon Linux 2023, x86_64 | `packer/docker-host.pkr.hcl:18` |
 | Packer SSH user | `ec2-user` | `packer/docker-host.pkr.hcl:26` |
 
-> **Note:** Root volume is 30 GiB here vs 20 GiB in the CDK module. This is intentional because the Packer-baked AMI includes pre-installed packages that consume more root space than the CDK path, which installs them at boot via user data.
+> **Note:** Root volume is 30 GiB here and in the current CDK source line. This keeps the default host storage contract aligned across both deployment paths and avoids the baked-AMI snapshot mismatch seen during AWS testing.
 
 ## Shared Module Behaviors
 
