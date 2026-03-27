@@ -91,6 +91,7 @@ done
 sudo nginx -t
 sudo systemctl restart nginx
 
+curl -sf http://localhost/_nginx/health >/dev/null
 curl -sf http://localhost/health >/dev/null
 
 echo "Application deployed successfully"

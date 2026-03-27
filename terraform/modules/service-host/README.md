@@ -61,4 +61,11 @@ The user data template (`files/user_data.sh.tpl`) runs on first boot:
 4. Pulls and runs the container at `172.30.0.10`
 5. Polls `http://172.30.0.10:8081/health` until healthy
 6. Validates and restarts Nginx
-7. Verifies `http://localhost:80/health` end-to-end
+7. Verifies direct Nginx health at `http://localhost:80/_nginx/health`
+8. Verifies the app health path at `http://localhost:80/health`
+
+Public Nginx behavior is strict:
+
+- `/_nginx/health` is a direct Nginx-only health endpoint
+- `/health`, `/api/v1`, and `/version` proxy to the container
+- all other paths return `404`
