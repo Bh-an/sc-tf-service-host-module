@@ -19,7 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [0.3.4] - 2026-03-27
 
 ### Fixed
-- Tightened default Nginx routing to expose only `/api/v1` and `/health`
+- Tightened default Nginx routing to expose only `/api/v1`, `/health`, and `/version`
 - Added a direct Nginx health endpoint for bootstrap diagnostics
 - Verified both Nginx health and app health after restart
 
