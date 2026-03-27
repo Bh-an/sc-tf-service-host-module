@@ -48,6 +48,14 @@ It does not own:
 
 Those belong to [`sc-ec2-go-service`](https://github.com/Bh-an/sc-ec2-go-service).
 
+## Capabilities
+
+- baked Amazon Linux 2023 AMI pipeline with Docker and Nginx preinstalled
+- shared Terraform network module for public and private subnet topologies, with optional NAT
+- shared Terraform service-host module for `module-public`, `private`, and `caller-managed` exposure modes
+- encrypted EC2 root and data volumes with either a module-managed KMS key or caller-provided `kms_key_arn`
+- SSM-managed host access and AMI resolution from SSM or latest matching AMI name
+
 ## Module Relationship
 
 ```mermaid
@@ -132,7 +140,7 @@ The `network` module exposes `enable_nat_gateways` so public-only deployments ca
 `v0.3.6`
 
 > [!NOTE]
-> This release line is locally validated and ready for the next fresh-clone public AWS rerun from the service repo.
+> This release line is live-verified through the service repo's fresh-clone public Terraform path completed on `2026-03-27`.
 
 ## Contributing
 
