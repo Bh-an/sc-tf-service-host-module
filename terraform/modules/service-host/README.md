@@ -11,7 +11,7 @@ Deploys a single EC2 instance running a Dockerized application behind host-level
 | `aws_security_group` | Dynamic ingress from `ingress_rules`, all-outbound egress |
 | `aws_instance` | EC2 host (Packer AMI, IMDSv2 required, two encrypted GP3 volumes) |
 | `aws_ebs_volume` + `aws_volume_attachment` | Dedicated data volume at `/dev/xvdf` |
-| `aws_eip` + `aws_eip_association` | Optional Elastic IP (enabled by default) |
+| `aws_eip` + `aws_eip_association` | Optional Elastic IP for `module-public` exposure |
 
 ## AMI Resolution
 
@@ -27,6 +27,7 @@ The module resolves its AMI in priority order:
 | `platform` | `string` | — | Platform name for naming/tagging |
 | `environment` | `string` | — | Environment name |
 | `vpc_id` | `string` | — | VPC to deploy into |
+| `vpc_cidr_block` | `string` | `null` | Required for `private` exposure defaults |
 | `subnet_id` | `string` | — | Subnet for the instance |
 | `availability_zone` | `string` | — | AZ for the data volume |
 | `instance_type` | `string` | `t3.micro` | EC2 instance type |
@@ -36,8 +37,9 @@ The module resolves its AMI in priority order:
 | `ami_ssm_parameter_name` | `string` | `null` | SSM-backed AMI ID |
 | `root_volume_size_gib` | `number` | `30` | Root EBS size |
 | `data_volume_size_gib` | `number` | `10` | Data EBS size |
-| `enable_elastic_ip` | `bool` | `true` | Allocate an EIP |
-| `ingress_rules` | `list(object)` | `[{port:80, cidr:"0.0.0.0/0"}]` | SG ingress rules |
+| `exposure_kind` | `string` | `module-public` | `module-public`, `private`, or `caller-managed` |
+| `enable_elastic_ip` | `bool` | `true` | Allocate an EIP for `module-public` exposure |
+| `ingress_rules` | `list(object)` | `null` | Optional explicit SG ingress rules using either `cidr` or `source_security_group_id` |
 
 ## Outputs
 
@@ -46,10 +48,19 @@ The module resolves its AMI in priority order:
 | `instance_id` | EC2 instance ID |
 | `instance_public_ip` | Elastic IP (or `null`) |
 | `api_endpoint` | `http://<EIP>/api/v1` (or `null`) |
+| `exposure_kind` | Effective exposure posture |
+| `has_public_endpoint` | Whether the module manages a public endpoint |
+| `listener_port` | Host Nginx listener port |
 | `kms_key_arn` | KMS key ARN |
 | `security_group_id` | Security group ID |
 | `iam_instance_profile_name` | Instance profile name |
 | `ami_id` | Resolved AMI ID |
+
+## Exposure Modes
+
+- `module-public` — module-managed EIP, default ingress from `0.0.0.0/0`, `api_endpoint` populated
+- `private` — no EIP, default ingress from `vpc_cidr_block`, `api_endpoint` is `null`
+- `caller-managed` — no EIP, no default ingress, caller supplies rules such as an ALB security group source, `api_endpoint` is `null`
 
 ## Bootstrap Script
 

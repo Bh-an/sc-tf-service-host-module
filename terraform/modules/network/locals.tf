@@ -23,7 +23,7 @@ locals {
     var.db_subnet_cidrs
   )
 
-  nat_gateway_target_map = length(var.public_subnet_cidrs) > 0 && length(var.private_subnet_cidrs) > 0 ? (
+  nat_gateway_target_map = var.enable_nat_gateways && length(var.public_subnet_cidrs) > 0 && length(var.private_subnet_cidrs) > 0 ? (
     var.single_nat_gateway ? {
       (var.availability_zones[0]) = var.public_subnet_cidrs[0]
     } : local.public_subnets_map

@@ -53,13 +53,14 @@ resource "aws_security_group" "app" {
   vpc_id      = var.vpc_id
 
   dynamic "ingress" {
-    for_each = var.ingress_rules
+    for_each = local.effective_ingress_rules
     content {
-      from_port   = ingress.value.port
-      to_port     = ingress.value.port
-      protocol    = "tcp"
-      cidr_blocks = [ingress.value.cidr]
-      description = ingress.value.description
+      from_port       = ingress.value.port
+      to_port         = ingress.value.port
+      protocol        = "tcp"
+      cidr_blocks     = ingress.value.cidr != null ? [ingress.value.cidr] : null
+      security_groups = ingress.value.source_security_group_id != null ? [ingress.value.source_security_group_id] : null
+      description     = ingress.value.description
     }
   }
 
@@ -132,7 +133,7 @@ resource "aws_instance" "app" {
 }
 
 resource "aws_eip" "app" {
-  count  = var.enable_elastic_ip ? 1 : 0
+  count  = local.effective_enable_elastic_ip ? 1 : 0
   domain = "vpc"
 
   tags = {
@@ -141,7 +142,7 @@ resource "aws_eip" "app" {
 }
 
 resource "aws_eip_association" "app" {
-  count         = var.enable_elastic_ip ? 1 : 0
+  count         = local.effective_enable_elastic_ip ? 1 : 0
   instance_id   = aws_instance.app.id
   allocation_id = aws_eip.app[0].id
 }

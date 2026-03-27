@@ -10,5 +10,6 @@ module "network" {
   db_subnet_cidrs      = []
   availability_zones   = var.availability_zones
   single_nat_gateway   = true
+  enable_nat_gateways  = false
   eks_cluster_name     = null
 }

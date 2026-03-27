@@ -1,15 +1,15 @@
 # Network Module
 
-Reusable VPC module that creates the full network stack: VPC, subnets (public/private/DB), Internet Gateway, NAT Gateway(s), and route tables.
+Reusable VPC module that creates the full network stack: VPC, subnets (public/private/DB), Internet Gateway, optional NAT Gateway(s), and route tables.
 
 ## Resources Created
 
 - VPC with DNS support and hostnames enabled
 - Public subnets (one per AZ) with IGW route
-- Private subnets (one per AZ) with NAT route
+- Private subnets (one per AZ) with optional NAT route
 - DB subnets (isolated, no internet route)
 - Internet Gateway
-- NAT Gateway (single or per-AZ, controlled by `single_nat_gateway`)
+- NAT Gateway (single or per-AZ, controlled by `single_nat_gateway`, optional via `enable_nat_gateways`)
 - Route tables for each subnet tier
 - Optional DB subnet group
 
@@ -26,6 +26,7 @@ Reusable VPC module that creates the full network stack: VPC, subnets (public/pr
 | `db_subnet_cidrs` | `list(string)` | Yes | — | DB subnet CIDRs (one per AZ) |
 | `availability_zones` | `list(string)` | Yes | — | AZs to deploy into |
 | `single_nat_gateway` | `bool` | Yes | — | `true` for one NAT (dev), `false` for per-AZ (prod) |
+| `enable_nat_gateways` | `bool` | No | `true` | Whether to create NAT Gateways and private default routes |
 | `eks_cluster_name` | `string` | No | `null` | If set, tags subnets for EKS load balancer discovery |
 
 ## Outputs
@@ -50,3 +51,8 @@ Reusable VPC module that creates the full network stack: VPC, subnets (public/pr
 | `public_route_table_id` | Public route table ID |
 | `private_route_table_ids` | AZ → private route table ID |
 | `db_route_table_id` | DB route table ID |
+
+## Usage Notes
+
+- Public-only assignment deployments can set `enable_nat_gateways = false` to avoid paying for unused NAT infrastructure.
+- Private service hosts that need outbound package/image access should keep `enable_nat_gateways = true`.

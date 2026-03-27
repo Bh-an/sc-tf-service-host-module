@@ -77,23 +77,24 @@ variable "data_volume_size_gib" {
 }
 
 variable "enable_elastic_ip" {
-  description = "Whether to allocate and associate an Elastic IP."
+  description = "Whether to allocate and associate an Elastic IP for module-public exposure."
   type        = bool
   default     = true
+}
+
+variable "exposure_kind" {
+  description = "Exposure posture for the service host."
+  type        = string
+  default     = "module-public"
 }
 
 variable "ingress_rules" {
   description = "Security group ingress rules for the application instance."
   type = list(object({
     port        = number
-    cidr        = string
     description = string
+    cidr        = optional(string)
+    source_security_group_id = optional(string)
   }))
-  default = [
-    {
-      port        = 80
-      cidr        = "0.0.0.0/0"
-      description = "HTTP"
-    }
-  ]
+  default = null
 }

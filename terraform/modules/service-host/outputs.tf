@@ -10,7 +10,22 @@ output "instance_public_ip" {
 
 output "api_endpoint" {
   description = "Full URL for the API endpoint when Elastic IP is enabled"
-  value       = var.enable_elastic_ip ? "http://${aws_eip.app[0].public_ip}/api/v1" : null
+  value       = local.effective_enable_elastic_ip ? "http://${aws_eip.app[0].public_ip}/api/v1" : null
+}
+
+output "exposure_kind" {
+  description = "Exposure posture for the service host"
+  value       = var.exposure_kind
+}
+
+output "has_public_endpoint" {
+  description = "Whether the service host has a module-managed public endpoint"
+  value       = local.effective_enable_elastic_ip
+}
+
+output "listener_port" {
+  description = "Public listener port exposed by host Nginx"
+  value       = local.listener_port
 }
 
 output "kms_key_arn" {

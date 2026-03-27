@@ -43,6 +43,12 @@ variable "single_nat_gateway" {
   type        = bool
 }
 
+variable "enable_nat_gateways" {
+  description = "Whether to create NAT Gateways and private default routes."
+  type        = bool
+  default     = true
+}
+
 variable "eks_cluster_name" {
   description = "The name of the EKS cluster. If provided, subnets will be tagged for Load Balancer discovery."
   type        = string

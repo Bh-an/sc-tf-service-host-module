@@ -5,7 +5,7 @@ The Terraform-side infrastructure for the EC2 service model. This is the aligned
 This repo owns:
 
 - **Packer AMI pipeline** — bakes Docker and Nginx into Amazon Linux 2023
-- **Reusable Terraform modules** — `network` (VPC/subnets) and `service-host` (EC2/KMS/EBS/IAM/SG)
+- **Reusable Terraform modules** — `network` (VPC/subnets/NAT) and `service-host` (EC2/KMS/EBS/IAM/SG)
 - **Root Terraform stack** — wires the modules together for maintainer validation
 
 It does not own the Go application or the Docker image. Those belong to [`sc-ec2-go-service`](https://github.com/Bh-an/sc-ec2-go-service).
@@ -30,15 +30,17 @@ scripts/                         AMI publication helpers
 | Root volume | **30 GiB**, GP3, encrypted | `terraform/modules/service-host/variables.tf:58` |
 | Data volume | 10 GiB, GP3, encrypted | `terraform/modules/service-host/variables.tf:64` |
 | Data volume device | `/dev/xvdf` | `terraform/modules/service-host/main.tf:162` |
-| Elastic IP | Enabled | `terraform/modules/service-host/variables.tf:70` |
+| Exposure mode | `module-public` | `terraform/modules/service-host/variables.tf:79` |
+| Elastic IP | Enabled for `module-public` | `terraform/modules/service-host/variables.tf:89` |
 | KMS key rotation | Enabled | `terraform/modules/service-host/main.tf:38` |
 | KMS deletion window | 7 days | `terraform/modules/service-host/main.tf:37` |
 | IMDSv2 | Required | `terraform/modules/service-host/main.tf:118` |
 | EBS type | GP3 | `terraform/modules/service-host/main.tf:123, 152` |
-| Ingress | Port 80 from `0.0.0.0/0` | `terraform/modules/service-host/variables.tf:80-86` |
+| Ingress | Exposure-derived defaults (`0.0.0.0/0`, VPC-only, or caller-managed) | `terraform/modules/service-host/locals.tf:2-17` |
 | Egress | All traffic | `terraform/modules/service-host/main.tf:66-71` |
 | AMI name prefix | `ec2-docker-host` | `terraform/modules/service-host/variables.tf:46` |
 | AMI SSM parameter | `null` (fallback to latest AMI) | `terraform/modules/service-host/variables.tf:52` |
+| NAT Gateways | Enabled by default in shared network module | `terraform/modules/network/variables.tf:47` |
 | Packer region | `ap-south-1` | `packer/variables.pkr.hcl:4` |
 | Packer base OS | Amazon Linux 2023, x86_64 | `packer/docker-host.pkr.hcl:18` |
 | Packer SSH user | `ec2-user` | `packer/docker-host.pkr.hcl:26` |
@@ -53,6 +55,16 @@ The service-host module resolves its AMI in priority order:
 2. **Latest matching** — fall back to `data "aws_ami"` filtered by `ami_name_prefix` + owner `self`
 
 The SSM path is preferred for production because it pins a tested AMI ID rather than always picking the newest build.
+
+## Exposure Modes
+
+The `service-host` module now supports the same deployment postures as the CDK module:
+
+- `module-public` — public subnet + module-managed EIP + default ingress from `0.0.0.0/0`
+- `private` — private subnet + no EIP + default ingress from the VPC CIDR
+- `caller-managed` — private subnet + no EIP + no default ingress; the caller supplies ingress, usually from an ALB security group
+
+The `network` module now exposes `enable_nat_gateways` so public-only deployments can skip NAT entirely, while private-host deployments can still opt into NAT-backed egress when needed.
 
 ## Validation
 
@@ -78,7 +90,7 @@ make deploy-terraform ENV=dev
 
 ## Current Release
 
-`v0.3.4`
+`v0.3.5`
 
 ## Contributing
 
