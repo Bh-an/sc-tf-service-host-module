@@ -30,7 +30,7 @@ output "listener_port" {
 
 output "kms_key_arn" {
   description = "ARN of the KMS key used for EBS encryption"
-  value       = aws_kms_key.ebs.arn
+  value       = local.effective_kms_key_arn
 }
 
 output "security_group_id" {

@@ -19,7 +19,7 @@ Reusable Terraform module that deploys a single EC2 host running a Dockerized ap
 | Resource | Purpose |
 |----------|---------|
 | `aws_iam_role` + `aws_iam_instance_profile` | EC2 assume-role with `AmazonSSMManagedInstanceCore` |
-| `aws_kms_key` + `aws_kms_alias` | EBS encryption key |
+| `aws_kms_key` + `aws_kms_alias` | EBS encryption key (only when `kms_key_arn` is not provided) |
 | `aws_security_group` | Dynamic ingress plus all-outbound egress |
 | `aws_instance` | EC2 host |
 | `aws_ebs_volume` + `aws_volume_attachment` | Dedicated data volume at `/dev/xvdf` |
@@ -47,6 +47,7 @@ The module resolves its AMI in priority order:
 | `availability_zone` | `string` | — | AZ for the data volume |
 | `instance_type` | `string` | `t3.micro` | EC2 instance type |
 | `key_pair_name` | `string` | `null` | Optional SSH key pair |
+| `kms_key_arn` | `string` | `null` | Optional caller-provided KMS key ARN for EBS encryption |
 | `docker_image` | `string` | — | Container image to deploy |
 | `ami_name_prefix` | `string` | `ec2-docker-host` | AMI name filter |
 | `ami_ssm_parameter_name` | `string` | `null` | SSM-backed AMI ID |
@@ -66,7 +67,7 @@ The module resolves its AMI in priority order:
 | `exposure_kind` | Effective exposure posture |
 | `has_public_endpoint` | Whether the module manages a public endpoint |
 | `listener_port` | Host Nginx listener port |
-| `kms_key_arn` | KMS key ARN |
+| `kms_key_arn` | Effective KMS key ARN (module-created or caller-provided) |
 | `security_group_id` | Security group ID |
 | `iam_instance_profile_name` | Instance profile name |
 | `ami_id` | Resolved AMI ID |
@@ -93,3 +94,5 @@ Public Nginx behavior is strict:
 - `/_nginx/health` is Nginx-only
 - `/health`, `/api/v1`, and `/version` proxy to the container
 - all other paths return `404`
+
+If you pass `kms_key_arn`, the module reuses that key and skips creating its own KMS key and alias. If you leave it unset, the module creates a customer-managed EBS key and schedules it for deletion with a 7-day window on destroy.

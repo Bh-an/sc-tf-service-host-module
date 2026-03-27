@@ -9,6 +9,10 @@ data "aws_iam_policy_document" "ec2_assume" {
   }
 }
 
+locals {
+  effective_kms_key_arn = var.kms_key_arn != null ? var.kms_key_arn : aws_kms_key.ebs[0].arn
+}
+
 resource "aws_iam_role" "app" {
   name               = "${local.name_prefix}-app-role"
   assume_role_policy = data.aws_iam_policy_document.ec2_assume.json
@@ -33,6 +37,7 @@ resource "aws_iam_instance_profile" "app" {
 }
 
 resource "aws_kms_key" "ebs" {
+  count                   = var.kms_key_arn == null ? 1 : 0
   description             = "KMS key for EBS volume encryption"
   deletion_window_in_days = 7
   enable_key_rotation     = true
@@ -43,8 +48,9 @@ resource "aws_kms_key" "ebs" {
 }
 
 resource "aws_kms_alias" "ebs" {
+  count         = var.kms_key_arn == null ? 1 : 0
   name          = "alias/${local.name_prefix}-ebs-key"
-  target_key_id = aws_kms_key.ebs.key_id
+  target_key_id = aws_kms_key.ebs[0].key_id
 }
 
 resource "aws_security_group" "app" {
@@ -124,7 +130,7 @@ resource "aws_instance" "app" {
     volume_type = "gp3"
     volume_size = var.root_volume_size_gib
     encrypted   = true
-    kms_key_id  = aws_kms_key.ebs.arn
+    kms_key_id  = local.effective_kms_key_arn
   }
 
   tags = {
@@ -152,7 +158,7 @@ resource "aws_ebs_volume" "data" {
   size              = var.data_volume_size_gib
   type              = "gp3"
   encrypted         = true
-  kms_key_id        = aws_kms_key.ebs.arn
+  kms_key_id        = local.effective_kms_key_arn
 
   tags = {
     Name = "${local.name_prefix}-data-volume"

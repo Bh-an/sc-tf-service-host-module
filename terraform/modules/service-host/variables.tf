@@ -46,6 +46,12 @@ variable "key_pair_name" {
   default     = null
 }
 
+variable "kms_key_arn" {
+  description = "Optional caller-provided KMS key ARN for EBS encryption. When set, the module reuses this key instead of creating its own."
+  type        = string
+  default     = null
+}
+
 variable "docker_image" {
   description = "Docker image to deploy on the instance."
   type        = string

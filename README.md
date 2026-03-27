@@ -129,10 +129,10 @@ The `network` module exposes `enable_nat_gateways` so public-only deployments ca
 
 ## Current Release
 
-`v0.3.5`
+`v0.3.6`
 
 > [!NOTE]
-> Live-verified via the service repo's public Terraform deployment path on `2026-03-27`.
+> This release line is locally validated and ready for the next fresh-clone public AWS rerun from the service repo.
 
 ## Contributing
 

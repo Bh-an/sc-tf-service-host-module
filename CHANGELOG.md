@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.6] - 2026-03-27
+
+### Added
+- Optional `kms_key_arn` input for bring-your-own-KMS-key parity with the CDK path
+
+### Changed
+- `kms_key_arn` output now returns the effective encryption key ARN whether the module created it or the caller supplied it
+
 ## [0.3.5] - 2026-03-27
 
 ### Added
