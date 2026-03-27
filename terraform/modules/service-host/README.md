@@ -27,6 +27,9 @@ Reusable Terraform module that deploys a single EC2 host running a Dockerized ap
 
 ## AMI Resolution
 
+> [!NOTE]
+> The SSM path is preferred for real deployments because it pins a tested AMI ID rather than always picking the newest build.
+
 The module resolves its AMI in priority order:
 
 1. SSM parameter

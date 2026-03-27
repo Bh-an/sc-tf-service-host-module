@@ -48,6 +48,25 @@ It does not own:
 
 Those belong to [`sc-ec2-go-service`](https://github.com/Bh-an/sc-ec2-go-service).
 
+## Module Relationship
+
+```mermaid
+graph TD
+    Consumer["sc-ec2-go-service<br/><i>consumer stack</i>"]
+
+    subgraph Repo["sc-tf-service-host-module"]
+        Network["modules/network<br/><i>VPC · subnets · IGW · NAT</i>"]
+        ServiceHost["modules/service-host<br/><i>EC2 · KMS · EBS · IAM · SG</i>"]
+        Packer["packer/<br/><i>baked AMI pipeline</i>"]
+    end
+
+    Consumer -->|module source| Network
+    Consumer -->|module source| ServiceHost
+    Packer -->|AMI via SSM| ServiceHost
+```
+
+---
+
 ## Directory Layout
 
 ```text
@@ -60,6 +79,7 @@ scripts/                         AMI publication helpers
 
 ## Configured Defaults
 
+> [!IMPORTANT]
 > **Defaults governance** — these values are load-bearing. If you change a default in code, update this table in the same commit.
 
 | Default | Value | Source |
@@ -83,7 +103,8 @@ scripts/                         AMI publication helpers
 | Packer base OS | Amazon Linux 2023, x86_64 | `packer/docker-host.pkr.hcl:18` |
 | Packer SSH user | `ec2-user` | `packer/docker-host.pkr.hcl:26` |
 
-> **Note:** Root volume is 30 GiB here and in the current CDK source line. This keeps the default host storage contract aligned across both deployment paths and avoids the baked-AMI snapshot mismatch seen during AWS testing.
+> [!NOTE]
+> Root volume is 30 GiB here and in the current CDK source line. This keeps the default host storage contract aligned across both deployment paths and avoids the baked-AMI snapshot mismatch seen during AWS testing.
 
 ## Shared Module Behaviors
 
@@ -109,6 +130,9 @@ The `network` module exposes `enable_nat_gateways` so public-only deployments ca
 ## Current Release
 
 `v0.3.5`
+
+> [!NOTE]
+> Live-verified via the service repo's public Terraform deployment path on `2026-03-27`.
 
 ## Contributing
 

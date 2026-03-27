@@ -58,5 +58,8 @@ Reusable VPC module for the Terraform-side service model. This module is usually
 
 ## Usage Notes
 
+> [!TIP]
+> Public-only deployments should set `enable_nat_gateways = false` to avoid NAT cost. Private hosts that need outbound image or package access should keep it `true`.
+
 - public-only assignment deployments can set `enable_nat_gateways = false`
 - private hosts that need outbound image or package access should keep `enable_nat_gateways = true`
