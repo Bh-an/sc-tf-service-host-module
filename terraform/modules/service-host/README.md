@@ -1,30 +1,42 @@
 # Service Host Module
 
-Deploys a single EC2 instance running a Dockerized application behind host-level Nginx. Handles IAM, KMS, EBS encryption, security groups, Elastic IP, and the bootstrap user data script.
+Reusable Terraform module that deploys a single EC2 host running a Dockerized application behind host-level Nginx. This is the Terraform-side equivalent of the CDK service-host model.
+
+## Context
+
+- parent repo: [README.md](../../../README.md)
+- paired network module: [../network/README.md](../network/README.md)
+- main consumer: [`sc-ec2-go-service/infra/terraform`](https://github.com/Bh-an/sc-ec2-go-service/tree/main/infra/terraform)
+
+## Prerequisites
+
+- Terraform
+- an image reference for `docker_image`
+- either a baked AMI or an SSM-published AMI parameter
 
 ## Resources Created
 
 | Resource | Purpose |
 |----------|---------|
 | `aws_iam_role` + `aws_iam_instance_profile` | EC2 assume-role with `AmazonSSMManagedInstanceCore` |
-| `aws_kms_key` + `aws_kms_alias` | Customer-managed key for EBS encryption (rotation enabled) |
-| `aws_security_group` | Dynamic ingress from `ingress_rules`, all-outbound egress |
-| `aws_instance` | EC2 host (Packer AMI, IMDSv2 required, two encrypted GP3 volumes) |
+| `aws_kms_key` + `aws_kms_alias` | EBS encryption key |
+| `aws_security_group` | Dynamic ingress plus all-outbound egress |
+| `aws_instance` | EC2 host |
 | `aws_ebs_volume` + `aws_volume_attachment` | Dedicated data volume at `/dev/xvdf` |
-| `aws_eip` + `aws_eip_association` | Optional Elastic IP for `module-public` exposure |
+| `aws_eip` + `aws_eip_association` | Optional EIP for `module-public` |
 
 ## AMI Resolution
 
 The module resolves its AMI in priority order:
 
-1. **SSM parameter** — if `ami_ssm_parameter_name` is set, read the AMI ID from Parameter Store
-2. **Latest matching** — `data "aws_ami"` filtered by `ami_name_prefix` + owner `self`
+1. SSM parameter
+2. latest matching AMI by `ami_name_prefix`
 
 ## Inputs
 
 | Variable | Type | Default | Description |
 |----------|------|---------|-------------|
-| `platform` | `string` | — | Platform name for naming/tagging |
+| `platform` | `string` | — | Platform name |
 | `environment` | `string` | — | Environment name |
 | `vpc_id` | `string` | — | VPC to deploy into |
 | `vpc_cidr_block` | `string` | `null` | Required for `private` exposure defaults |
@@ -38,16 +50,16 @@ The module resolves its AMI in priority order:
 | `root_volume_size_gib` | `number` | `30` | Root EBS size |
 | `data_volume_size_gib` | `number` | `10` | Data EBS size |
 | `exposure_kind` | `string` | `module-public` | `module-public`, `private`, or `caller-managed` |
-| `enable_elastic_ip` | `bool` | `true` | Allocate an EIP for `module-public` exposure |
-| `ingress_rules` | `list(object)` | `null` | Optional explicit SG ingress rules using either `cidr` or `source_security_group_id` |
+| `enable_elastic_ip` | `bool` | `true` | Allocate an EIP for `module-public` |
+| `ingress_rules` | `list(object)` | `null` | Explicit ingress rules using either `cidr` or `source_security_group_id` |
 
 ## Outputs
 
 | Output | Description |
 |--------|-------------|
 | `instance_id` | EC2 instance ID |
-| `instance_public_ip` | Elastic IP (or `null`) |
-| `api_endpoint` | `http://<EIP>/api/v1` (or `null`) |
+| `instance_public_ip` | Elastic IP or `null` |
+| `api_endpoint` | `http://<EIP>/api/v1` or `null` |
 | `exposure_kind` | Effective exposure posture |
 | `has_public_endpoint` | Whether the module manages a public endpoint |
 | `listener_port` | Host Nginx listener port |
@@ -58,25 +70,23 @@ The module resolves its AMI in priority order:
 
 ## Exposure Modes
 
-- `module-public` — module-managed EIP, default ingress from `0.0.0.0/0`, `api_endpoint` populated
-- `private` — no EIP, default ingress from `vpc_cidr_block`, `api_endpoint` is `null`
-- `caller-managed` — no EIP, no default ingress, caller supplies rules such as an ALB security group source, `api_endpoint` is `null`
+- `module-public` — module-managed EIP and public ingress
+- `private` — no EIP and VPC-only ingress default
+- `caller-managed` — no EIP and no default ingress
 
 ## Bootstrap Script
 
-The user data template (`files/user_data.sh.tpl`) runs on first boot:
+The first-boot user data script:
 
-1. Discovers and formats the secondary EBS volume, mounts to `/data`
-2. Writes Nginx config from Terraform-rendered templates
-3. Creates Docker bridge network `ec2-net` at `172.30.0.0/24`
-4. Pulls and runs the container at `172.30.0.10`
-5. Polls `http://172.30.0.10:8081/health` until healthy
-6. Validates and restarts Nginx
-7. Verifies direct Nginx health at `http://localhost:80/_nginx/health`
-8. Verifies the app health path at `http://localhost:80/health`
+1. prepares the data volume
+2. writes Nginx config
+3. creates the Docker bridge network
+4. pulls and runs the container
+5. waits for app health
+6. validates and restarts Nginx
 
 Public Nginx behavior is strict:
 
-- `/_nginx/health` is a direct Nginx-only health endpoint
+- `/_nginx/health` is Nginx-only
 - `/health`, `/api/v1`, and `/version` proxy to the container
 - all other paths return `404`

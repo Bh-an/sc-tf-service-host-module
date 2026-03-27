@@ -1,6 +1,17 @@
 # Packer AMI Pipeline
 
-Bakes a custom Amazon Linux 2023 AMI with Docker and Nginx pre-installed and enabled as systemd services. This AMI is what the Terraform service-host module launches from.
+This directory owns the baked AMI path for the Terraform deployment model. Start at the [repo root README](../README.md) for ownership and release context, or use [`sc-ec2-go-service`](https://github.com/Bh-an/sc-ec2-go-service) for the operator workflow that drives this build.
+
+## Context
+
+- parent repo: [README.md](../README.md)
+- consuming operator path: [`sc-ec2-go-service`](https://github.com/Bh-an/sc-ec2-go-service)
+- AMI consumer: [service-host module README](../terraform/modules/service-host/README.md)
+
+## Prerequisites
+
+- Packer
+- AWS CLI with valid credentials
 
 ## What Gets Baked
 
@@ -17,7 +28,7 @@ The resulting AMI is named `ec2-docker-host-<timestamp>` and owned by the build 
 |----------|---------|-------------|
 | `region` | `ap-south-1` | AWS region for the build |
 | `instance_type` | `t3.micro` | Builder instance type |
-| `ami_name_prefix` | `ec2-docker-host` | AMI name prefix (the service-host module filters on this) |
+| `ami_name_prefix` | `ec2-docker-host` | AMI name prefix |
 | `ami_regions` | `[]` | Additional regions to copy the AMI to |
 | `ami_ssm_parameter_name` | `null` | Optional SSM parameter to publish the AMI ID to |
 
@@ -44,20 +55,3 @@ For cross-region replication, copy `replication.pkrvars.hcl.example` to a real `
 ```bash
 packer build -var-file=replication.pkrvars.hcl .
 ```
-
-## AMI Discovery
-
-The service-host Terraform module finds the AMI using:
-
-```hcl
-data "aws_ami" "docker_host" {
-  most_recent = true
-  owners      = ["self"]
-  filter {
-    name   = "name"
-    values = ["ec2-docker-host-*"]
-  }
-}
-```
-
-Alternatively, when `ami_ssm_parameter_name` is set, it reads the pinned AMI ID from SSM Parameter Store instead of doing a latest-AMI lookup.

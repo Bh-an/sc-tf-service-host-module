@@ -1,17 +1,28 @@
 # Network Module
 
-Reusable VPC module that creates the full network stack: VPC, subnets (public/private/DB), Internet Gateway, optional NAT Gateway(s), and route tables.
+Reusable VPC module for the Terraform-side service model. This module is usually consumed through [`sc-ec2-go-service`](https://github.com/Bh-an/sc-ec2-go-service), not directly by assignment operators.
+
+## Context
+
+- parent repo: [README.md](../../../README.md)
+- paired service module: [../service-host/README.md](../service-host/README.md)
+- main consumer: [`sc-ec2-go-service/infra/terraform`](https://github.com/Bh-an/sc-ec2-go-service/tree/main/infra/terraform)
+
+## Prerequisites
+
+- Terraform
+- AWS provider access in the consuming stack
 
 ## Resources Created
 
 - VPC with DNS support and hostnames enabled
-- Public subnets (one per AZ) with IGW route
-- Private subnets (one per AZ) with optional NAT route
-- DB subnets (isolated, no internet route)
+- public subnets with IGW route
+- private subnets with optional NAT route
+- DB subnets
 - Internet Gateway
-- NAT Gateway (single or per-AZ, controlled by `single_nat_gateway`, optional via `enable_nat_gateways`)
-- Route tables for each subnet tier
-- Optional DB subnet group
+- optional NAT Gateway(s)
+- route tables for each subnet tier
+- optional DB subnet group
 
 ## Inputs
 
@@ -21,13 +32,13 @@ Reusable VPC module that creates the full network stack: VPC, subnets (public/pr
 | `platform` | `string` | Yes | — | Platform name for naming/tagging |
 | `environment` | `string` | Yes | — | Environment name for naming/tagging |
 | `vpc_cidr` | `string` | Yes | — | VPC CIDR block |
-| `public_subnet_cidrs` | `list(string)` | Yes | — | Public subnet CIDRs (one per AZ) |
-| `private_subnet_cidrs` | `list(string)` | Yes | — | Private subnet CIDRs (one per AZ) |
-| `db_subnet_cidrs` | `list(string)` | Yes | — | DB subnet CIDRs (one per AZ) |
+| `public_subnet_cidrs` | `list(string)` | Yes | — | Public subnet CIDRs |
+| `private_subnet_cidrs` | `list(string)` | Yes | — | Private subnet CIDRs |
+| `db_subnet_cidrs` | `list(string)` | Yes | — | DB subnet CIDRs |
 | `availability_zones` | `list(string)` | Yes | — | AZs to deploy into |
-| `single_nat_gateway` | `bool` | Yes | — | `true` for one NAT (dev), `false` for per-AZ (prod) |
+| `single_nat_gateway` | `bool` | Yes | — | `true` for one NAT, `false` for per-AZ |
 | `enable_nat_gateways` | `bool` | No | `true` | Whether to create NAT Gateways and private default routes |
-| `eks_cluster_name` | `string` | No | `null` | If set, tags subnets for EKS load balancer discovery |
+| `eks_cluster_name` | `string` | No | `null` | Optional EKS subnet tagging helper |
 
 ## Outputs
 
@@ -38,21 +49,14 @@ Reusable VPC module that creates the full network stack: VPC, subnets (public/pr
 | `vpc_cidr_block` | VPC CIDR |
 | `availability_zones` | AZs used |
 | `public_subnet_ids` | Public subnet IDs |
-| `public_subnet_cidrs` | Public subnet CIDRs |
-| `public_subnets_map` | AZ → public subnet ID |
 | `private_subnet_ids` | Private subnet IDs |
-| `private_subnet_cidrs` | Private subnet CIDRs |
-| `private_subnets_map` | AZ → private subnet ID |
 | `db_subnet_ids` | DB subnet IDs |
-| `db_subnet_cidrs` | DB subnet CIDRs |
-| `db_subnets_map` | AZ → DB subnet ID |
-| `db_subnet_group_name` | DB subnet group name |
 | `nat_gateway_public_ips` | NAT Gateway IPs |
 | `public_route_table_id` | Public route table ID |
-| `private_route_table_ids` | AZ → private route table ID |
+| `private_route_table_ids` | Private route table IDs |
 | `db_route_table_id` | DB route table ID |
 
 ## Usage Notes
 
-- Public-only assignment deployments can set `enable_nat_gateways = false` to avoid paying for unused NAT infrastructure.
-- Private service hosts that need outbound package/image access should keep `enable_nat_gateways = true`.
+- public-only assignment deployments can set `enable_nat_gateways = false`
+- private hosts that need outbound image or package access should keep `enable_nat_gateways = true`

@@ -1,20 +1,58 @@
 # sc-tf-service-host-module
 
-The Terraform-side infrastructure for the EC2 service model. This is the aligned secondary deployment path — the CDK module is primary, but both paths produce equivalent deployments with the same security posture and runtime model.
+The Terraform-side infrastructure for the EC2 service model. This is the aligned secondary deployment path: the CDK module is primary, but both paths target the same runtime model and security posture.
 
-This repo owns:
+## Start Here
+
+- [packer/README.md](packer/README.md) — baked AMI pipeline
+- [terraform/modules/network/README.md](terraform/modules/network/README.md) — shared VPC/network module
+- [terraform/modules/service-host/README.md](terraform/modules/service-host/README.md) — shared EC2 service-host module
+- [`sc-ec2-go-service`](https://github.com/Bh-an/sc-ec2-go-service) — operator repo and Terraform consumer
+- [`sc-cdk-service-host-module`](https://github.com/Bh-an/sc-cdk-service-host-module) — CDK source of truth for the same model
+
+## Prerequisites
+
+For shared module and Packer work in this repo:
+
+- Terraform
+- Packer
+- AWS CLI with valid credentials
+
+Quick local verification:
+
+```bash
+cd packer && packer init . && packer validate .
+cd ../terraform && terraform init -backend=false && terraform validate
+```
+
+For real deploy/test execution, use the operator surface in [`sc-ec2-go-service`](https://github.com/Bh-an/sc-ec2-go-service):
+
+```bash
+make build-ami ENV=dev
+make deploy-terraform ENV=dev
+```
+
+## What This Repo Owns
+
+This repo owns three things:
 
 - **Packer AMI pipeline** — bakes Docker and Nginx into Amazon Linux 2023
-- **Reusable Terraform modules** — `network` (VPC/subnets/NAT) and `service-host` (EC2/KMS/EBS/IAM/SG)
-- **Root Terraform stack** — wires the modules together for maintainer validation
+- **Reusable Terraform modules** — `network` and `service-host`
+- **Root Terraform stack** — maintainer/reference validation stack
 
-It does not own the Go application or the Docker image. Those belong to [`sc-ec2-go-service`](https://github.com/Bh-an/sc-ec2-go-service).
+It does not own:
+
+- the Go application
+- the GHCR image publishing workflow
+- the main operator/testing runbook
+
+Those belong to [`sc-ec2-go-service`](https://github.com/Bh-an/sc-ec2-go-service).
 
 ## Directory Layout
 
-```
-packer/                          Baked EC2 host AMI (Amazon Linux 2023 + Docker + Nginx)
-terraform/                       Root stack (reference/validation)
+```text
+packer/                          Baked EC2 host AMI
+terraform/                       Root stack for maintainer validation
 terraform/modules/network/       VPC, subnets, IGW, NAT, routing
 terraform/modules/service-host/  EC2, IAM, KMS, EBS, SG, Nginx, bootstrap user data
 scripts/                         AMI publication helpers
@@ -45,48 +83,28 @@ scripts/                         AMI publication helpers
 | Packer base OS | Amazon Linux 2023, x86_64 | `packer/docker-host.pkr.hcl:18` |
 | Packer SSH user | `ec2-user` | `packer/docker-host.pkr.hcl:26` |
 
-> **Note:** Root volume is 30 GiB here vs 20 GiB in the CDK module. This is intentional — the Packer-baked AMI includes pre-installed packages (Docker, Nginx) that consume more root space than the CDK path, which installs them at boot via user data.
+> **Note:** Root volume is 30 GiB here vs 20 GiB in the CDK module. This is intentional because the Packer-baked AMI includes pre-installed packages that consume more root space than the CDK path, which installs them at boot via user data.
 
-## AMI Resolution
+## Shared Module Behaviors
+
+### AMI Resolution
 
 The service-host module resolves its AMI in priority order:
 
-1. **SSM parameter** — if `ami_ssm_parameter_name` is set, read the AMI ID from Parameter Store
-2. **Latest matching** — fall back to `data "aws_ami"` filtered by `ami_name_prefix` + owner `self`
+1. SSM parameter
+2. latest matching AMI by `ami_name_prefix`
 
-The SSM path is preferred for production because it pins a tested AMI ID rather than always picking the newest build.
+The SSM path is preferred for real deployments because it pins a tested AMI ID rather than always picking the newest build.
 
-## Exposure Modes
+### Exposure Modes
 
-The `service-host` module now supports the same deployment postures as the CDK module:
+The `service-host` module supports the same deployment postures as the CDK module:
 
-- `module-public` — public subnet + module-managed EIP + default ingress from `0.0.0.0/0`
-- `private` — private subnet + no EIP + default ingress from the VPC CIDR
-- `caller-managed` — private subnet + no EIP + no default ingress; the caller supplies ingress, usually from an ALB security group
+- `module-public`
+- `private`
+- `caller-managed`
 
-The `network` module now exposes `enable_nat_gateways` so public-only deployments can skip NAT entirely, while private-host deployments can still opt into NAT-backed egress when needed.
-
-## Validation
-
-```bash
-cd packer && packer init . && packer validate .
-cd ../terraform && terraform init -backend=false && terraform validate
-```
-
-For real deployment, use the operator surface in [`sc-ec2-go-service`](https://github.com/Bh-an/sc-ec2-go-service):
-
-```bash
-make build-ami ENV=dev
-make deploy-terraform ENV=dev
-```
-
-## Related Repos
-
-| Repo | Role |
-|------|------|
-| [sc-cdk-service-host-module](https://github.com/Bh-an/sc-cdk-service-host-module) | Primary CDK constructs (source of truth for infra design) |
-| [sc-cdk-service-host-module-go](https://github.com/Bh-an/sc-cdk-service-host-module-go) | Generated Go CDK bindings |
-| [sc-ec2-go-service](https://github.com/Bh-an/sc-ec2-go-service) | Go application + operator surface + both consumer paths |
+The `network` module exposes `enable_nat_gateways` so public-only deployments can skip NAT cost while private-host deployments can still opt into egress.
 
 ## Current Release
 
