@@ -26,21 +26,21 @@ scripts/                         AMI publication helpers
 
 | Default | Value | Source |
 |---------|-------|--------|
-| Instance type | `t3.micro` | `terraform/modules/service-host/variables.tf:29` |
-| Root volume | **30 GiB**, GP3, encrypted | `terraform/modules/service-host/variables.tf:58` |
-| Data volume | 10 GiB, GP3, encrypted | `terraform/modules/service-host/variables.tf:64` |
-| Data volume device | `/dev/xvdf` | `terraform/modules/service-host/main.tf:162` |
-| Exposure mode | `module-public` | `terraform/modules/service-host/variables.tf:79` |
+| Instance type | `t3.micro` | `terraform/modules/service-host/variables.tf:37` |
+| Root volume | **30 GiB**, GP3, encrypted | `terraform/modules/service-host/variables.tf:66` |
+| Data volume | 10 GiB, GP3, encrypted | `terraform/modules/service-host/variables.tf:72` |
+| Data volume device | `/dev/xvdf` | `terraform/modules/service-host/main.tf:163` |
+| Exposure mode | `module-public` | `terraform/modules/service-host/variables.tf:78` |
 | Elastic IP | Enabled for `module-public` | `terraform/modules/service-host/variables.tf:89` |
 | KMS key rotation | Enabled | `terraform/modules/service-host/main.tf:38` |
 | KMS deletion window | 7 days | `terraform/modules/service-host/main.tf:37` |
-| IMDSv2 | Required | `terraform/modules/service-host/main.tf:118` |
-| EBS type | GP3 | `terraform/modules/service-host/main.tf:123, 152` |
-| Ingress | Exposure-derived defaults (`0.0.0.0/0`, VPC-only, or caller-managed) | `terraform/modules/service-host/locals.tf:2-17` |
-| Egress | All traffic | `terraform/modules/service-host/main.tf:66-71` |
-| AMI name prefix | `ec2-docker-host` | `terraform/modules/service-host/variables.tf:46` |
-| AMI SSM parameter | `null` (fallback to latest AMI) | `terraform/modules/service-host/variables.tf:52` |
-| NAT Gateways | Enabled by default in shared network module | `terraform/modules/network/variables.tf:47` |
+| IMDSv2 | Required | `terraform/modules/service-host/main.tf:117` |
+| EBS type | GP3 | `terraform/modules/service-host/main.tf:123, 153` |
+| Ingress | Exposure-derived defaults (`0.0.0.0/0`, VPC-only, or caller-managed) | `terraform/modules/service-host/locals.tf:2-19` |
+| Egress | All traffic | `terraform/modules/service-host/main.tf:67-72` |
+| AMI name prefix | `ec2-docker-host` | `terraform/modules/service-host/variables.tf:54` |
+| AMI SSM parameter | `null` (fallback to latest AMI) | `terraform/modules/service-host/variables.tf:60` |
+| NAT Gateways | Enabled by default in shared network module | `terraform/modules/network/variables.tf:46` |
 | Packer region | `ap-south-1` | `packer/variables.pkr.hcl:4` |
 | Packer base OS | Amazon Linux 2023, x86_64 | `packer/docker-host.pkr.hcl:18` |
 | Packer SSH user | `ec2-user` | `packer/docker-host.pkr.hcl:26` |
