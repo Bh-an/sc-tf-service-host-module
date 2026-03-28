@@ -91,9 +91,9 @@ variable "exposure_kind" {
 variable "ingress_rules" {
   description = "Security group ingress rules for the application instance."
   type = list(object({
-    port        = number
-    description = string
-    cidr        = optional(string)
+    port                     = number
+    description              = string
+    cidr                     = optional(string)
     source_security_group_id = optional(string)
   }))
   default = null

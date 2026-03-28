@@ -55,6 +55,7 @@ Those belong to [`sc-ec2-go-service`](https://github.com/Bh-an/sc-ec2-go-service
 - shared Terraform service-host module for `module-public`, `private`, and `caller-managed` exposure modes
 - encrypted EC2 root and data volumes with either a module-managed KMS key or caller-provided `kms_key_arn`
 - SSM-managed host access and AMI resolution from SSM or latest matching AMI name
+- first-boot container bootstrap that retries transient GHCR image-pull failures before failing the host setup
 
 ## Module Relationship
 
