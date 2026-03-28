@@ -138,10 +138,10 @@ The `network` module exposes `enable_nat_gateways` so public-only deployments ca
 
 ## Current Release
 
-`v0.3.6`
+`v0.3.7`
 
 > [!NOTE]
-> This release line is live-verified through the service repo's fresh-clone public Terraform path completed on `2026-03-27`.
+> This release line includes the Terraform validation fix for `ingress_rules = null` and the first-boot image-pull retry change. The public Terraform deploy workflow was re-verified from the service repo on `2026-03-29`.
 
 ## Contributing
 
