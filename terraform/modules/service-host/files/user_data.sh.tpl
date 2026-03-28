@@ -4,6 +4,29 @@ exec > >(tee /var/log/user-data.log) 2>&1
 
 echo "Starting application deployment..."
 
+retry() {
+  local attempts="$1"
+  local initial_delay="$2"
+  shift 2
+
+  local attempt=1
+  local delay="$initial_delay"
+
+  until "$@"; do
+    local exit_code="$?"
+    if [ "$attempt" -ge "$attempts" ]; then
+      echo "Command failed after $attempt attempts: $*"
+      return "$exit_code"
+    fi
+
+    echo "Command failed (attempt $attempt/$attempts): $*"
+    echo "Retrying in $${delay}s..."
+    sleep "$delay"
+    attempt=$((attempt + 1))
+    delay=$((delay * 2))
+  done
+}
+
 install_if_missing() {
   local binary="$1"
   shift
@@ -66,7 +89,7 @@ sudo docker network inspect ec2-net >/dev/null 2>&1 || \
     ec2-net
 
 sudo docker rm -f ec2-go-service >/dev/null 2>&1 || true
-sudo docker pull ${docker_image}
+retry 5 5 sudo docker pull ${docker_image}
 sudo docker run -d \
   --name ec2-go-service \
   --restart unless-stopped \

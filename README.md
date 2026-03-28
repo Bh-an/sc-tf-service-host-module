@@ -55,6 +55,7 @@ Those belong to [`sc-ec2-go-service`](https://github.com/Bh-an/sc-ec2-go-service
 - shared Terraform service-host module for `module-public`, `private`, and `caller-managed` exposure modes
 - encrypted EC2 root and data volumes with either a module-managed KMS key or caller-provided `kms_key_arn`
 - SSM-managed host access and AMI resolution from SSM or latest matching AMI name
+- first-boot container bootstrap that retries transient GHCR image-pull failures before failing the host setup
 
 ## Module Relationship
 
@@ -137,10 +138,10 @@ The `network` module exposes `enable_nat_gateways` so public-only deployments ca
 
 ## Current Release
 
-`v0.3.6`
+`v0.3.7`
 
 > [!NOTE]
-> This release line is live-verified through the service repo's fresh-clone public Terraform path completed on `2026-03-27`.
+> This release line includes the Terraform validation fix for `ingress_rules = null` and the first-boot image-pull retry change. The public Terraform deploy workflow was re-verified from the service repo on `2026-03-29`.
 
 ## Contributing
 

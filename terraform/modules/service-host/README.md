@@ -55,7 +55,7 @@ The module resolves its AMI in priority order:
 | `data_volume_size_gib` | `number` | `10` | Data EBS size |
 | `exposure_kind` | `string` | `module-public` | `module-public`, `private`, or `caller-managed` |
 | `enable_elastic_ip` | `bool` | `true` | Allocate an EIP for `module-public` |
-| `ingress_rules` | `list(object)` | `null` | Explicit ingress rules using either `cidr` or `source_security_group_id` |
+| `ingress_rules` | `list(object)` | `null` | Explicit ingress rules using either `cidr` or `source_security_group_id`; `null` keeps the exposure-mode defaults |
 
 ## Outputs
 
@@ -85,7 +85,7 @@ The first-boot user data script:
 1. prepares the data volume
 2. writes Nginx config
 3. creates the Docker bridge network
-4. pulls and runs the container
+4. pulls the container with retry/backoff and then runs it
 5. waits for app health
 6. validates and restarts Nginx
 
